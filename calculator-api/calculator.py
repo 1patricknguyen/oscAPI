@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI, APIRouter
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 from math import log
 
 if __name__ == "__main__":
@@ -8,6 +9,14 @@ if __name__ == "__main__":
 else:
     app = APIRouter()
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins. For production, specify your frontend's origin.
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods.
+    allow_headers=["*"],  # Allows all headers.
+)
 
 class Operands(BaseModel):  # This is the format of the JSON Request for these functions
     x: int
@@ -31,6 +40,8 @@ async def api_mul(operands: Operands):  # Finds the product of x and y
 
 @app.post("/calc/div")
 async def api_div(operands: Operands):  # Finds the quotient of x and y
+    if operands.y == 0:
+        return "Cannot divide by zero!"
     return operands.x / operands.y
 
 
